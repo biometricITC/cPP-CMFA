@@ -33,10 +33,10 @@ The BIO-iTC has three primary branches:
 |Branch
 |Description
 
-|Master
+|main
 |The current, approved released version of the documents.
 
-|Develop
+|working
 |The active branch for next version of the documents.
 
 |Interpretation
@@ -44,7 +44,7 @@ The BIO-iTC has three primary branches:
 
 |===
 
-All Pull Requests should be made to the https://github.com/biometricITC/cPP-biometrics/tree/develop[Develop] branch.
+All Pull Requests should be made to the https://github.com/biometricITC/cPP-CMFA/tree/working[working] branch.
 
 == Files Description
 This table provides an overview of the files in the repository.
