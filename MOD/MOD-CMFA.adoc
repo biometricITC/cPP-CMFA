@@ -24,7 +24,7 @@
 * user-authorized update (require password/PIN before allowing for user-requested change), configured by admin (allow/disallow)
 
 
-This is a collaborative Protection Profile Module (PP-Module) used to extend a Base-PP for a computer that implements biometric enrolment and verification to unlock the computer in the locked state using the user’s biometric characteristics. Therefore, the Target of Evaluation (TOE) in this PP-Module is a computer that implements biometric enrolment and verification functionality. However, the terms TOE and TOE environment in this document expresses the biometric system that implements the biometric enrolment and verification functionality, and the computer that supports the biometric system to protect the biometric data respectively, for clearly describing the relation and boundary between the biometric system and computer. The biometric enrolment and verification processes are described in the following sections. 
+This is a collaborative Protection Profile Module (PP-Module) used to extend a Base-PP for a computer that implements CMFA to keep the computer in the unlocked state using a collection of CMFA inputs. Therefore, the Target of Evaluation (TOE) in this PP-Module is a computer that implements CMFA functionality. However, the terms TOE and TOE environment in this document expresses the CMFA system that implements the continuous authentication functionality, and the computer that supports the CMFA system to protect the CMFA data respectively, for clearly describing the relation and boundary between the CMFA system and computer. The CMFA enrolment and verification processes are described in the following sections. 
 
 ==== CMFA Enrolment
 *Claire*
@@ -34,11 +34,10 @@ During the enrolment process, the TOE captures samples from the biometric charac
 Only a user who knows the computer NBAF can enrol or revoke one's own templates. Multiple templates may be enroled, as separate entries uniquely identified by the TOE, and optionally uniquely identifiable by the user (through the computer's User Interface).
 
 ==== CMFA Verification
-*Greg O*
 
-During the verification process, a user presents one's own biometric characteristics to the TOE without presenting any user identity information for unlocking the computer. The TOE captures samples from the biometric characteristics, retrieves all enroled templates and compares them with the features extracted from the captured samples of the user to measure the similarity between the two data and determines whether to accept or reject the user based on the similarity, and indicates the decision to the computer.
+Continuous verification in the context of CMFA is a passive activity from the user's perspective.  No overt authentication related action is required by the user to determine CMFA status.  From the user's perspective, he/she is merely using the computer for its intended purposes.  During the verification process, a user's CMFA verification input signals are periodically sampled by the CMFA TOE.  The user is not prompted to provide any of these input signals.  The TOE collects these data as needed from the computer/sensors whether or not the user is interacting with the computer.  Each CMFA input signal is individually tested for quality and veracity according to each signal's defined standards as prescribed by the TOE vendor and selected by the CMFA Administrator.  The CMFA engine calculates a score based on all available input data that meets prescribed data quality and veracity metrics to determine a Trust score.  If the Trust score meets or exceeds the CMFA threshold for that particular use case, the computer remains unlocked.  If the CMFA Trust score falls below the threshold, the TOE informs the computer the CMFA threshold is not met and the computer determines if the computer should be remain unlocked.  Once the computer is locked the user is required to re-authenticate to the computer to unlock the device in accordance with [reference the appropriate PP requirement].
 
-Examples of biometric characteristic used for the biometric enrolment and verification are: fingerprint, face, eye, palm print, finger vein, palm vein, speech, signature and so forth. However, scope of this PP-Module is limited to only those biometric characteristics that can be selected from FIA_MBV_EXT.1.1 for which <<BIOSD>> defines the Evaluation Activities.
+CMFA related signals include all the input signals available to the TOE as defined by the TOE vendor.  Some or all available CMFA signals may be selected by the CMFA administrator for use in calculating the Trust score for a given use case.  Data provided by these signals can include user biometric information, wireless signal information (BT, Wi-Fi, NFC, etc.), location, on body status, local time, various computer status information, information from external devices such as wearables that are paired with the computer, and others.  CMFA signal selection may be static or dynamic.  Static selections are made by the CMFA administrator and remain fixed until changed by the administrator.  Dynamic selections are set by the administrator but can change according to changes in the computer status such as time of day, location, wireless signal strength, connected network ID, user request for change, etc.  Limits on what is permitted to change and by how much are set by the administrator.
 
 === CMFA Management
 *Brian*
@@ -66,7 +65,7 @@ image::toe-boundary.png[title="Generic representation of a TOE" align="center"]
 {empty} +
 As illustrated in the above figure, the TOE is capable of:
 
-* Capturing samples from user’s biometric characteristics (Data Capture Subsystem)
+* Capturing samples from user's biometric characteristics (Data Capture Subsystem)
 * Extracting and processing the features from samples of sufficient quality and generating various templates (Signal Processing Subsystem)
 * Storing the templates in a database on the computer (Storage Subsystem)
 * Comparing captured features with data contained in one or more templates (Comparison Subsystem)
