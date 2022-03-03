@@ -41,15 +41,41 @@ During the verification process, a user presents one's own biometric characteris
 Examples of biometric characteristic used for the biometric enrolment and verification are: fingerprint, face, eye, palm print, finger vein, palm vein, speech, signature and so forth. However, scope of this PP-Module is limited to only those biometric characteristics that can be selected from FIA_MBV_EXT.1.1 for which <<BIOSD>> defines the Evaluation Activities.
 
 === CMFA Management
-*Brian*
+The configuration of CMFA is more complicated than single-factor authentication methods such as biometrics or passwords. Not only does it require the specification of the signals to be used by the CMFA Engine, the use of those signals must be configured. In addition to the configuration required by the administrator, the end user will need to provide training information (some of which may be collected over a period of time) to fully configure the CMFA for use.
 
-* general configuration (not specific to 1 user)
-* choice of inputs
-* configure details for inputs (i.e. specific Wi-Fi network, not any Wi-Fi network)
-* parameter combinations necessary for score
-** location + time + Wi-Fi = good, vs just checking general parameters
-* concept of scoring/trust
-* ability to configure based on specific needs (flexible system)
+CMFA management is expected to rely on the device management system to receive configuration policies. The device managmenet system is relied upon to ensure the policy is trusted from the corresponding EMM. The actual CMFA policy on the device will be maintained within the SEE of the system.
+
+==== CMFA Policy Settings
+A CMFA policy would have a number of settings governing the overall configuration of the CMFA Engine. 
+
+NOTE: The options here are meant to be representative, but not exhaustive.
+
+* Frequency of input checks (where applicable)
+* Inputs to be used
+** Mandatory inputs
+** Optional/Selectable (per device capability) inputs
+* Input configurations (examples below)
+** Trusted Wi-Fi network(s)
+** Trusted location(s)
+** Time period when usable
+* Trust settings for inputs
+* Score settings
+** parameters for combined inputs (i.e. location + time + Wi-Fi = good, vs just checking general parameters)
+* Training parameters
+** Length of training needed
+** Forced user enrolment (where applicable)
+** User information requests
+
+==== CMFA Training
+In addition to configuring the system settings, the user may have specific actions to perform tasks to complete the enrolment process. Until the user has provided the training/enrolment/responses needed, the CMFA authentication template cannot be completed.
+
+NOTE: The options here are meant to be representative, but not exhaustive.
+
+* Enrol a biometric
+* Confirm a timezone
+* Confirm a location (i.e. office/work location)
+* Train a longer-term biometric (such as gait)
+* Approve/confirm device connections (i.e. Bluetooth devices)
 
 === CMFA User Auth Update
 * updating the user template, by either admin directly or some sort of user-requested authorization
