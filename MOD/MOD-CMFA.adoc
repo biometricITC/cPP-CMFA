@@ -1,4 +1,4 @@
-= collaborative PP-Module for Continuous MultiFA enrolment and verification
+= Proposed collaborative PP-Module for Continuous Multi-Factor Authentication enrolment and verification Overview
 :showtitle:
 :toc:
 :toclevels: 3
@@ -12,7 +12,28 @@
 :iTC-longame: Biometrics Security
 :iTC-shortname: BIO-iTC
 
-== TOE Overview
+== Document Description
+This is an overview of a proposed collaborative Protection Profile Module (PP-Module) used to extend a Base-PP for a computer that implements Continuous Multi-Factor Authentication (CMFA) to keep the computer in the unlocked state using a collection of CMFA inputs. Therefore, the Target of Evaluation (TOE) in this PP-Module is a computer that implements CMFA functionality. However, the terms TOE and TOE environment in this document expresses the CMFA system that implements the continuous authentication functionality, and the computer that supports the CMFA system to protect the CMFA data respectively, for clearly describing the relation and boundary between the CMFA system and computer. The CMFA enrolment and verification processes are described in the following sections. 
+
+== CMFA (TOE) Overview
+
+CMFA is intended as a system for maintaining the identity of a user on a computer after the initial user authentication credentials have been entered into the computer. The CMFA system works in the background to maintain a level of trust about whether the computer is still in the possession of the authenticated user. This is done by utilizing information from a variety of sources available to the computer, and then combining this input to create a score about the confidence the computer is still in the possession of that user. The score is meant to be dynamic, being updated on a constant basis (within the limits of usability on the computer), so the level of confidence is accurate to the moment in time.
+
+CMFA as defined here is specifically defined as a system on which to determine this confidence (referenced as the Trust Score) using the available inputs (as determined by the device and administrator). The Trust Score is the output of the CMFA system; the actions that should happen based on that Trust Score are handled by the computer directly. This is similar to how biometric authentication systems are generally configured; the authentication system asks the biometric subsystem to determine whether a user's identity is valid and a result is provided back to the authentication system. The main difference with CMFA is that while a biometric system is generally a yes/no result about the user's identity, the CMFA Trust Score provides a range (such as a 100 point scale) that can be used to provide confidence to the computer's system.
+
+In practice this means that the actions of the device are not directly determined by the CMFA system, but are implemented by the computer's authentication system based on the Trust Score and the configured threshold values that specify actions the system must take. This division ensures that the CMFA system is able to work solely in the background with no direct user interaction (once enrolment/training has been completed). If the Trust Score has dropped below a specified threshold and the computer is locked by the authentication system, it is the authentication system that determines the user must enter new credentials (i.e. biometric/password/PIN as specified in FIA_UAU.5 in the Base-PP) to unlock the computer. The act of entering these credentials successfully would be recorded by the CMFA in the background to increase the Trust Score above that set threshold again.
+
+=== CMFA Examples
+
+There are many possible examples for CMFA usage on a computer. The key point to any of these is that the CMFA is only maintaining the Trust Score in the background, and it is up to the computer to determine what actions to take based on the value of the Trust Score.
+
+The examples here are meant to show a range of options for the use of the CMFA output but are not meant to be exhaustive or even necessarily what is mandatory for use.
+
+. *Maintain Computer Unlock* - this is the simplest case, where as long as the Trust Score is above a threshold value, the computer is maintained in an unlocked state (so the user is not prompted for direct authentication credential entry)
+. *Sensitive Data Protection Lock/Computer Unlock* - this is an expansion of #1 with the additional function that if the Trust Score falls below a higher level, that SDP data (defined in the PP_MDF) would lock, while still maintaining the computer unlock for everything else. For example a score of 85 is needed to keep SDP unlocked, and a Trust Score of 70 is needed to keep the computer unlocked. Above 85 everything is available, below 70 the whole computer is locked, but between 85 and 70, SDP is locked while everything else on the computer remains available.
+. *Time-Delay Lock* - this is a case where the Trust Score may fall below the threshold, but instead of an immediate lock action, the CMFA engine will check to see if an action happens within a period of time to raise the score back above the threshold, such as transiting between separate buildings on a campus (and losing Wi-Fi connectivity).
+. *Rich Trust Score* - this is a scenario where more than just the Trust Score is available. The additional output could include information such as whether the computer is within a specific location, or any other combination of available information (such as analysis of signal combination subsets as opposed to the entire Trust Score).
+
 === TOE main security features
 
 * enrolment
@@ -24,7 +45,7 @@
 * user-authorized update (require password/PIN before allowing for user-requested change), configured by admin (allow/disallow)
 
 
-This is a collaborative Protection Profile Module (PP-Module) used to extend a Base-PP for a computer that implements CMFA to keep the computer in the unlocked state using a collection of CMFA inputs. Therefore, the Target of Evaluation (TOE) in this PP-Module is a computer that implements CMFA functionality. However, the terms TOE and TOE environment in this document expresses the CMFA system that implements the continuous authentication functionality, and the computer that supports the CMFA system to protect the CMFA data respectively, for clearly describing the relation and boundary between the CMFA system and computer. The CMFA enrolment and verification processes are described in the following sections. 
+
 
 ==== CMFA Enrolment
 *Claire*
@@ -35,9 +56,9 @@ Only a user who knows the computer NBAF can enrol or revoke one's own templates.
 
 ==== CMFA Verification
 
-Continuous verification in the context of CMFA is a passive activity from the user's perspective.  No overt authentication related action is required by the user to determine CMFA status.  From the user's perspective, they are merely using the computer for its intended purposes.  During the verification process, a user's CMFA verification input signals are periodically sampled by the CMFA TOE.  The user is not prompted to provide any of these input signals.  The TOE collects these data as needed from the computer/sensors whether or not the user is interacting with the computer.  Each CMFA input signal is individually tested for quality and veracity according to each signal's defined standards as prescribed by the TOE vendor and selected by the CMFA Administrator.  The CMFA engine calculates a score based on all available input data that meets prescribed data quality and veracity metrics to determine a Trust score.  If the Trust score meets or exceeds the CMFA threshold for that particular use case, the computer remains unlocked.  If the CMFA Trust score falls below the threshold, the TOE informs the computer the CMFA threshold is not met and the computer determines if the computer should be remain unlocked.  Once the computer is locked the user is required to explicitly re-authenticate to the computer to unlock the device using an authentication method specified in FIA_UAU.5 in the Base-PP, after which point CMFA Trust score will be above the threshold and can again maintain the CMFA status as unlocked.
+Continuous verification in the context of CMFA is a passive activity from the user's perspective. No overt authentication related action is required by the user to determine CMFA status. From the user's perspective, they are merely using the computer for its intended purposes. During the verification process, a user's CMFA verification input signals are periodically sampled by the CMFA TOE. The user is not prompted to provide any of these input signals. The TOE collects these data as needed from the computer/sensors whether or not the user is interacting with the computer. Each CMFA input signal is individually tested for quality and veracity according to each signal's defined standards as prescribed by the TOE vendor and selected by the CMFA Administrator. The CMFA engine calculates a score based on all available input data that meets prescribed data quality and veracity metrics to determine a Trust score. The Trust score, threshold value and possibly other relevant information is made available to the computer for use in determining security-related actions.
 
-CMFA related signals include all the input signals available to the TOE as defined by the TOE vendor.  Some or all available CMFA signals may be selected by the CMFA administrator for use in calculating the Trust score for a given use case.  Data provided by these signals can include user biometric information, wireless signal information (BT, Wi-Fi, NFC, etc.), location, on body status, local time, various computer status information, information from external devices such as wearables that are paired with the computer, and others.  CMFA signal selection may be static or dynamic.  Static selections are made by the CMFA administrator and remain fixed until changed by the administrator.  Dynamic selections are set by the administrator but can change according to changes in the computer status such as time of day, location, wireless signal strength, connected network ID, user request for change, etc.  Limits on what is permitted to change and by how much are set by the administrator.
+CMFA related signals include all the input signals available to the TOE as defined by the TOE vendor. Some or all available CMFA signals may be selected by the CMFA administrator for use in calculating the Trust score for a given use case. Data provided by these signals can include user biometric information, wireless signal information (BT, Wi-Fi, NFC, etc.), location, on body status, local time, various computer status information, information from external devices such as wearables that are paired with the computer, and others. CMFA signal selection may be static or dynamic. Static selections are made by the CMFA administrator and remain fixed until changed by the administrator. Dynamic selections are set by the administrator but can change according to changes in the computer status such as time of day, location, wireless signal strength, connected network ID, user request for change, etc. Limits on what is permitted to change and by how much are set by the administrator.
 
 === CMFA Management
 *Brian*
@@ -86,7 +107,7 @@ The specification of the above security  functions are described in the Base-PP 
 image::BIO_cPP_architecture_final.png[title="Generic relation between the TOE and the computer" align="center"]
 
 ==== TOE Use Case
-The computer itself may be operated in a number of use cases such as enterprise use with limited personal use or Bring Your Own Device (BYOD). The TOE on the computer may also be operated in the same use cases, however, use cases of the TOE should be devised separately considering the purpose of biometric verification. The following use cases describe how and why biometric verification is supposed to be used. Each use case has its own assurance level, depending on its criticality and separate PP or PP-Module should be developed for each use case.  
+The computer itself may be operated in a number of use cases such as enterprise use with limited personal use or Bring Your Own Device (BYOD). The TOE on the computer may also be operated in the same use cases, however, use cases of the TOE should be devised separately considering the purpose of biometric verification. The following use cases describe how and why biometric verification is supposed to be used. Each use case has its own assurance level, depending on its criticality and separate PP or PP-Module should be developed for each use case. 
 
 This PP-Module only assumes USE CASE 1 described below. USE CASE 2 is out of scope of this PP-Module.
 
