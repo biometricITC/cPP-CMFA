@@ -91,7 +91,7 @@ As illustrated in the above figure, the TOE is comprised of:
 
 * CMFA Engine - the core service of the CMFA that determines the authentication Score based on the user's profile (and will generate the profile during enrolment) based on the policy specified by the administrator
 * CMFA Signal Verification - this filters input and associates Trust values with the incoming data. Additional processing may be done on an input related to the Trust value
-* Policy Engine - this applies the configuration specified by the administrator (it does not perform any processing)
+* Policy Engine - this applies the configuration specified by the administrator (it does not perform any authentication processing)
 
 Additionally there are external components used by the TOE:
 
