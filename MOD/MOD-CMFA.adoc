@@ -35,16 +35,6 @@ The examples here are meant to show a range of options for the use of the CMFA o
 . *Rich Trust Score* - this is a scenario where more than just the Trust Score is available. The additional output could include information such as whether the computer is within a specific location, or any other combination of available information (such as analysis of signal combination subsets as opposed to the entire Trust Score).
 
 === TOE main security features
-
-* enrolment
-* verification
-* updating the system based on new parameters
-** for example geolocation tags when traveling to another office
-* biometric update (later training period), after injury, other changes
-* admin configuration
-* user-authorized update (require password/PIN before allowing for user-requested change), configured by admin (allow/disallow)
-
-
 This is a collaborative Protection Profile Module (PP-Module) used to extend a Base-PP for a computer that implements CMFA to keep the computer in the unlocked state using a collection of CMFA inputs. Therefore, the Target of Evaluation (TOE) in this PP-Module is a computer that implements CMFA functionality. However, the terms TOE and TOE environment in this document expresses the CMFA system that implements the continuous authentication functionality, and the computer that supports the CMFA system to protect the CMFA data respectively, for clearly describing the relation and boundary between the CMFA system and computer. The CMFA enrolment and verification processes are described in the following sections. 
 
 ==== CMFA Enrolment
@@ -83,7 +73,7 @@ NOTE: The options here are meant to be representative, but not exhaustive.
 * Training parameters
 ** Length of training needed
 ** Forced user enrolment (where applicable)
-** User information requests
+** Prompts for user information (such as entering location information, or adding biometrics)
 
 ==== CMFA Training
 In addition to configuring the system settings, the user may have specific actions to perform tasks to complete the enrolment process. Until the user has provided the training/enrolment/responses needed, the CMFA authentication template cannot be completed.
@@ -96,9 +86,19 @@ NOTE: The options here are meant to be representative, but not exhaustive.
 * Train a longer-term biometric (such as gait)
 * Approve/confirm device connections (i.e. Bluetooth devices)
 
-=== CMFA User Auth Update
-* updating the user template, by either admin directly or some sort of user-requested authorization
-* management functions that are specific to a single user
+=== CMFA User Template Update
+While the CMFA Training process performs the initial configuation of the user template, the CMFA system must also support explicit updates that may be outside the initial training window. These specific changes should not require a full training cycle to update the template (a shorter training cycle may be needed in some circumstances). 
+
+Some examples of changes:
+
+* The user may enrol a new biometric (such as a new fingerprint, or an update to an existing fingerprint after an injury causes the original fingerprint template to no longer succeed)
+* Selecting a new office location
+* Changing a time zone (such as when traveling)
+* Adding new Bluetooth devices
+
+Similarly the admin may force a change in the template.
+
+When making this type of change it is expected that the user would be required to provide a password/PIN to authorize the change of the template (as is required when changing a biometric template). To ensure proper security here, the changes would also have to be within a limited time window after the authentication.
 
 === TOE Design
 The TOE is fully integrated into the computer without the need for additional software and hardware. The following figure, inspired from <<ISO/IEC 30107-1>>, is a generic representation of a TOE. It should be noted that the actual TOE design may not directly correspond to this figure and the developer may design the TOE in a different way. This illustrates the components that a CMFA system will rely on for enrolment and verification processes.
@@ -122,7 +122,11 @@ Additionally there are external components used by the TOE:
 * Biometric Sensors (Trusted and Untrusted) - various biometric sensors that are available on the computer which may or may not be evaluated to the BIO-PPM
 * On-board Status - information internal to the device such as time, special keys, etc
 
-* Capturing samples from user's biometric characteristics (Data Capture Subsystem)
+The lines between the external components and the TOE are representative to show:
+
+* Red - external components that are untrusted and must be processed by the CMFA Signal Verification system before being passed to the CMFA Engine
+* Orange dotted - possible status information from on-board the device that still may not be fully trusted and therefore must follow the same path as the external components
+* Green - trusted components that are able to pass information directly to the CMFA Engine without being verified
 
 The TOE verification flow can be represented roughly as this:
 
@@ -147,7 +151,7 @@ image::timeline.png[title="CMFA Score Timeline" align="center"]
 ==== Relation between TOE and Computer 
 The TOE is reliant on the computer itself to provide overall security of the system. This PP-Module is intended to be used with a Base-PP, and the Base-PP is responsible for evaluating the following security functions:
 
-* Providing the NBAF to support user authentication and management of the TOE security function
+* Providing the NCAF (Non-Continuous Authentication Factor) to support user authentication and management of the TOE security function
 * Invoking the TOE to enrol and verify the user and take appropriate actions based on the decision of the TOE
 * Providing the Separate Execution Environment (SEE) that guarantees the TOE and its data to be protected with respect to confidentiality and integrity
 
@@ -163,21 +167,21 @@ The computer itself may be operated in a number of use cases such as enterprise 
 This PP-Module only assumes USE CASE 1 described below. USE CASE 2 is out of scope of this PP-Module.
 
 ===== USE CASE 1: CMFA verification for maintaining the unlocked state on the computer
-This use case is applicable for any computers such as a desktop, laptop, tablet or smartphone that implement biometric enrolment and verification functionality. For enhanced security that is easy to use, the computer may implement biometric verification on a computer once it has been “unlocked”. The initial unlock is generally done by a NBAF which is required at startup (or possibly after some period of time), and after that, the user is able to use one's own biometric characteristic to unlock access to the computer. In this use case, the computer is not supposed to be used for security sensitive services through the biometric verification.
+This use case is applicable for any computers such as a desktop, laptop, tablet or smartphone that implement CMFA enrolment and verification functionality. For enhanced security that is easy to use, the computer may implement CMFA verification on a computer once it has been “unlocked”. The initial unlock is generally done by a NCAF which is required at startup (or possibly after some period of time), and after that, the computer lock state is maintained by the CMFA system. In this use case, the computer is not supposed to be used for security sensitive services through the CMFA verification.
 
-The main concern of this use case is the accuracy of the biometric verification (i.e. FAR/FMR and FRR/FNMR). Security assurance for computer that the TOE relies on should be handled by the Base-PP.
+The main concern of this use case is the accuracy of the CMFA verification. Security assurance for computer that the TOE relies on should be handled by the Base-PP.
 
-This use case assumes that the computer is configured correctly to enable the biometric verification by the user, who acts as the biometric system administrator in this use case.
+This use case assumes that the computer is configured correctly to enable the CMFA verification by the admin, who acts as the CMFA system administrator in this use case.
 
-It is also assumed that the user enrols to the biometric system correctly, following the guidance provided by the TOE. Presentation attacks during biometric enrolment and verification may be out of scope, but optionally addressed. FTE is not a security relevant criterion for this use case.
+It is also assumed that the user enrols to the CMFA system correctly, following the guidance provided by the TOE. Presentation attacks during CMFA enrolment and verification may be out of scope, but optionally addressed. FTE is not a security relevant criterion for this use case.
 
 ===== USE CASE 2: CMFA verification for security sensitive service
 
 This use case is an example of another use case that is not considered in this PP-Module. Another PP or PP-Module should be developed at higher assurance level for this use case.
 
-Computers may be used for security sensitive services such as payment transactions and online banking. Verification may be done by the biometric for convenience instead of the NBAF to access such security sensitive services.
+Computers may be used for security sensitive services such as payment transactions and online banking. Verification may be done by the CMFA for convenience instead of the NCAF to access such security sensitive services.
 
-The requirements for the TOE focus on the biometric performance (FTE, FAR/FMR and FRR/FNMR) and presentation attack detection.
+The requirements for the TOE focus on the CMFA performance and presentation attack detection.
 
 ===== USE CASE 3: CMFA verification used to unlock external services
 * for example using the score data to authorize unlocking a door
