@@ -238,7 +238,9 @@ It is possible that this could be swapped for FDP_RIP.2, but it isn't clear that
 
 ===== FIA_CME_EXT.1 CMFA enrolment
 
-FIA_CME_EXT.1.1:: The TSF shall provide a mechanism to enrol an authenticated user to the CMFA system.
+FIA_CME_EXT.1.1:: The TSF shall provide a mechanism to enrol an authenticated user to the CMFA system. 
+
+*INFO:* To complete the enrolment of the CMFA system the user may need to enrol or acknowledge to various components of the system. For example the user may need to enrol a biometric or authorize the use of a biometric for CMFA. The user may also need to enter information like location info (or confirm it), or connect and mark accepted BT devices. The enrolment process for the user is unlikely to be a single step.
 
 
 ===== FIA_CMV_EXT.1 CMFA verification
@@ -246,6 +248,16 @@ FIA_CME_EXT.1.1:: The TSF shall provide a mechanism to enrol an authenticated us
 FIA_CMV_EXT.1.1:: The TSF shall provide a CMFA verification mechanism.
 
 FIA_CMV_EXT.1.2 - in biometrics this is a measure of accuracy (FAR/FRR). It isn't clear what the equivalent would be for CMFA and how it would be measured at this point (at least how it would be written). This may just need to be its own separate SFR instead of a single component within the SFR due to the possible complexity.
+
+===== Template Configuration
+
+SFR:: The CMFA system can utilize the following inputs to create a template configuration: biometrics, location, etc. The input requirements/constraints shall be defined.
+
+*INFO:* While it is expected that any biometric used by the CMFA should have been evaluated to the Biometrics PP-Module, this is not actually a requirement. The constraint would be the level of trust allowed based on whether the biometric has been evaluated or not (only an evaluated biometric could be considered "trusted"). Another example could be the power on the radio that is needed to be used (for example a signal of at least XYZ dB).
+
+SFR:: A template configuration shall require that the calcuated trust score would be comprised of at least 2/3 value from trusted input signals.
+
+*INFO:* The point here is that a template configuration will be used to generate a trust score that will be used by the system to determine the unlock status. The calculation of the trust score uses weighted values for the different inputs, and untrusted inputs should not count for more than 1/3 the total score.
 
 ===== Template Quality
 
@@ -269,7 +281,7 @@ Attack detection may be optional, but if it could be used on select signals as o
 
 ===== CMFA Score
 
-SFR:: The TOE shall combine the input signals to generate a score that will be reported to the authentication system to determine the lock/unlock status of the device.
+SFR:: The TOE shall combine the input signals to generate a score based on the template configuration that will be reported to the authentication system to determine the lock/unlock status of the device.
 
 ==== Security Management
 
@@ -284,9 +296,9 @@ The following types of management functions would be available:
 ** input signals to be used
 ** configuration of input signals (i.e. office location, office Wi-Fi network)
 ** enrolment period
-** frequency of input checks
+** frequency of input checks (for example static with fixed periods or dynamic where the frequency may change based some parameters)
 ** enrolment period use (can the system be used for verification before the end of enrolment or not)
-** trust settings for input signals
+** trust settings for input signals (score weighting)
 * User
 ** allow use of biometrics
 ** enable/disable (if admin allows use, user can choose to not use, or stop using)
@@ -346,4 +358,4 @@ FTP_TRP.1.2:: The TSF shall permit [_the TSF_] to initiate communication via the
 
 FTP_TRP.1.3:: The TSF shall require the use of the trusted path for [[_list of input signal sources to the TOE_]].
 
-*INFO:* Trusted path here is to ensure a secure channel between the input signal and the CMFA system. Disclosure of the data is not really a concern here, though this could be useful from a privacy standpoint (again because the data collected for CMFA is really personal).
+*INFO:* Trusted path here is to ensure a secure channel between the input signal and the CMFA system. Disclosure of the data is not really a concern here, though this could be useful from a privacy standpoint (again because the data collected for CMFA is really personal). The source of the signal over the path can also be used as a determination of trust of the input. Since some signals may come over what may be untrusted channels, this is likely an input into determining the trust level that can be assigned to the input.
