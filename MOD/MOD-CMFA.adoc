@@ -259,7 +259,7 @@ SFR:: The CMFA system can utilize the following inputs to create a template conf
 
 *INFO:* While it is expected that any biometric used by the CMFA should have been evaluated to the Biometrics PP-Module, this is not actually a requirement. The constraint would be the level of trust allowed based on whether the biometric has been evaluated or not (only an evaluated biometric could be considered "trusted"). Another example could be the power on the radio that is needed to be used (for example a signal of at least XYZ dB).
 
-SFR:: A template configuration shall require that the calcuated trust score would be comprised of at least 2/3 value from trusted input signals.
+SFR:: A template configuration shall require that the calculated trust score would be comprised of at least 2/3 value from trusted input signals.
 
 *INFO:* The point here is that a template configuration will be used to generate a trust score that will be used by the system to determine the unlock status. The calculation of the trust score uses weighted values for the different inputs, and untrusted inputs should not count for more than 1/3 the total score.
 
