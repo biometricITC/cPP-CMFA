@@ -281,7 +281,7 @@ Attack detection may be optional, but if it could be used on select signals as o
 
 ===== CMFA Score
 
-SFR:: The TOE shall combine the input signals to generate a score based on the template configuration that will be reported to the authentication system to determine the lock/unlock status of the device.
+SFR:: The TOE shall combine the input signals to generate a score based on the template configuration that will be reported to the authentication system.
 
 ==== Security Management
 
@@ -329,6 +329,8 @@ SFR:: The CMFA template shall not be exported.
 
 FPT_CDP_EXT.1.1:: Processing of plaintext CMFA data shall be inside the SEE in runtime.
 
+*INFO:* The expectation here is that the SEE also provides protection for data at rest to ensure that any information that is stored cannot be accessed in that state.
+
 ===== FPT_PCT_EXT.1 Protection of CMFA template
 
 FPT_PCT_EXT.1.1:: The TSF shall protect the CMFA template [*selection*: _using a PIN as an additional factor, using a password as an additional factor_, [*assignment*: _other circumstances_]].
@@ -339,16 +341,7 @@ FPT_FLS.1.1:: The TSF shall preserve a secure state when the following types of 
 
 *INFO:* The purpose of this requirement is that if invalid inputs (or other possible conditions that may be critical, such as the system crashing), would fail over to the normal authentication mechanism. Basically the point would be that in the case of a "critical" failure, the score would go to 0.
 
-===== FPT_TST.1 TSF Testing (modified)
-
-FPT_TST.1.1:: The TSF shall run a suite of self tests [selection: _during initial start-up, periodically during normal operation, at the request of the authorised user, at the conditions[assignment: conditions under which self test should occur]_] to demonstrate the correct operation of [_the TSF_].
-
-*INFO:* The purpose of this is to have some sort of check on the generation of the output to ensure that it is properly functioning. This may not be necessary, but would seem to be tied to FPT_FLS.1 in terms of knowing the ysstem is functioning.
-
 ==== Trusted Path/Channels
-
-* is this useful to show some paths to the CMFA engine? Trust?
-FPT_CDP_EXT.1.2:: Transmission of plaintext biometric data between the capture sensor and the SEE shall be isolated from the main computer operating system on the TSF in runtime.
 
 ===== FTP_TRP.1 Trusted path
 
