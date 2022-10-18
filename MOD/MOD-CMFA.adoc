@@ -49,6 +49,10 @@ Continuous verification in the context of CMFA is a passive activity from the us
 
 CMFA related signals include all the input signals available to the TOE as defined by the TOE vendor. Some or all available CMFA signals may be selected by the CMFA administrator for use in calculating the Trust score for a given use case. Data provided by these signals can include user biometric information, wireless signal information (BT, Wi-Fi, NFC, etc.), location, on body status, local time, various computer status information, information from external devices such as wearables that are paired with the computer, and others. CMFA signal selection may be static or dynamic. Static selections are made by the CMFA administrator and remain fixed until changed by the administrator. Dynamic selections are set by the administrator but can change according to changes in the computer status such as time of day, location, wireless signal strength, connected network ID, user request for change, etc. Limits on what is permitted to change and by how much are set by the administrator.
 
+===== Verification Accuracy Measurement
+
+An important consideration for any verification system is a measure of its accuracy. For comparison, biometrics systems are generally measured using FAR/FRR (or passwords are measured using length/complexity). The CMFA system though is not a single parameter used for authentication, but a combination of multiple inputs. As such the ability to provide a simple measure of accuracy such as the FAR/FRR for biometrics is not feasible, or even a good comparison between implementations.
+
 === CMFA Management
 The configuration of CMFA is more complicated than single-factor authentication methods such as biometrics or passwords. Not only does it require the specification of the signals to be used by the CMFA Engine, the use of those signals must be configured. In addition to the configuration required by the administrator, the end user will need to provide training information (some of which may be collected over a period of time) to fully configure the CMFA for use.
 
@@ -192,21 +196,24 @@ The requirements for the TOE focus on the CMFA performance and presentation atta
 
 == Security Functional Requirements
 
-=== Conventions
-The individual security functional requirements are specified in the sections below.
-The following conventions are used for the completion of operations:
+=== TOE Environment Security Functional Requirements
+The CMFA system is part of a larger environment (such as a mobile device), and relies on various services from that environment to provide some capabilities. There are three main areas that seem to be most likely to be relied that may have requirements that should be modified in a Base-PP (such as the PP_MDF_V3.3).
 
-* [_Italicized text within square brackets_] indicates an operation to be completed by the ST author.
+==== Audit (FAU)
+The CMFA system itself likely would not have audit functionality built into the module itself, but should have various information included as part of the device audit system.
 
-* [*Bold text within square brackets*] indicates the type of operation.
-
-Extended SFRs are identified by having a label “EXT” at the end of the SFR name.
-
-=== TOE Security Functional Requirements
-This section lists SFRs that are proposed for inclusion in the PP-Module. Where a catalog SFR is available that has been copied here, otherwise the intent of an extended SFR is written out but has not been formally proposed (natural language vs CC requirement).
+* enable/disable CMFA
+* configuration update
+* optionally record when the device locks (or unlocks if supported) based on Trust Score
 
 ==== Cryptopgraphic Operations (FCS)
 The TOE is expected to rely on the platform for any cryptography, but at this time there are not any known functions that would require including FCS SFRs to the PP-Module.
+
+==== Protection of the TSF (FPT)
+The CMFA has its own requirements for this category, but may also rely on modifications to the Base-PP to provide support for securing the CMFA system and its data.
+
+=== TOE Security Functional Requirements
+This section lists SFRs that are proposed for inclusion in the PP-Module. Where a catalog SFR is available that has been copied here, otherwise the intent of an extended SFR is written out but has not been formally proposed (natural language vs CC requirement).
 
 ==== User Data Protection (FDP)
 
@@ -242,12 +249,9 @@ FIA_CME_EXT.1.1:: The TSF shall provide a mechanism to enrol an authenticated us
 
 *INFO:* To complete the enrolment of the CMFA system the user may need to enrol or acknowledge to various components of the system. For example the user may need to enrol a biometric or authorize the use of a biometric for CMFA. The user may also need to enter information like location info (or confirm it), or connect and mark accepted BT devices. The enrolment process for the user is unlikely to be a single step.
 
-
 ===== FIA_CMV_EXT.1 CMFA verification
 
 FIA_CMV_EXT.1.1:: The TSF shall provide a CMFA verification mechanism.
-
-FIA_CMV_EXT.1.2 - in biometrics this is a measure of accuracy (FAR/FRR). It isn't clear what the equivalent would be for CMFA and how it would be measured at this point (at least how it would be written). This may just need to be its own separate SFR instead of a single component within the SFR due to the possible complexity.
 
 ===== Template Configuration
 
