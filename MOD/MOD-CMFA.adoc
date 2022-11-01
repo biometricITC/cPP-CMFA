@@ -49,6 +49,10 @@ Continuous verification in the context of CMFA is a passive activity from the us
 
 CMFA related signals include all the input signals available to the TOE as defined by the TOE vendor. Some or all available CMFA signals may be selected by the CMFA administrator for use in calculating the Trust score for a given use case. Data provided by these signals can include user biometric information, wireless signal information (BT, Wi-Fi, NFC, etc.), location, on body status, local time, various computer status information, information from external devices such as wearables that are paired with the computer, and others. CMFA signal selection may be static or dynamic. Static selections are made by the CMFA administrator and remain fixed until changed by the administrator. Dynamic selections are set by the administrator but can change according to changes in the computer status such as time of day, location, wireless signal strength, connected network ID, user request for change, etc. Limits on what is permitted to change and by how much are set by the administrator.
 
+===== Verification Accuracy Measurement
+
+An important consideration for any verification system is a measure of its accuracy. For comparison, biometrics systems are generally measured using FAR/FRR (or passwords are measured using length/complexity). The CMFA system though is not a single parameter used for authentication, but a combination of multiple inputs. As such the ability to provide a simple measure of accuracy such as the FAR/FRR for biometrics is not feasible, or even a good comparison between implementations.
+
 === CMFA Management
 The configuration of CMFA is more complicated than single-factor authentication methods such as biometrics or passwords. Not only does it require the specification of the signals to be used by the CMFA Engine, the use of those signals must be configured. In addition to the configuration required by the administrator, the end user will need to provide training information (some of which may be collected over a period of time) to fully configure the CMFA for use.
 
@@ -192,143 +196,163 @@ The requirements for the TOE focus on the CMFA performance and presentation atta
 
 == Security Functional Requirements
 
-=== Conventions
-The individual security functional requirements are specified in the sections below.
-The following conventions are used for the completion of operations:
+=== TOE Environment Security Functional Requirements
+The CMFA system is part of a larger environment (such as a mobile device), and relies on various services from that environment to provide some capabilities. There are three main areas that seem to be most likely to be relied that may have requirements that should be modified in a Base-PP (such as the PP_MDF_V3.3).
 
-* [_Italicized text within square brackets_] indicates an operation to be completed by the ST author.
+==== Audit (FAU)
+The CMFA system itself likely would not have audit functionality built into the module itself, but should have various information included as part of the device audit system.
 
-* [*Bold text within square brackets*] indicates the type of operation.
-
-Extended SFRs are identified by having a label “EXT” at the end of the SFR name.
-
-=== PP_MDF Security Functional Requirements Direction
-
-In a PP-Configuration that includes the <<PP_MDF>>, the biometric enrolment and verification is expected to rely on some of the security functions implemented by the computer as a whole and evaluated against the Base-PP. In this case, the following sections describe any modifications that the ST author must make to the SFRs defined in the Base-PP in addition to what is mandated by <<TOE Security Functional Requirements>>. 
-
-Full evaluation activities are not repeated in the <<BIOSD>> for the requirements in this section that are references to the <<PP_MDF>>; only the additional testing needed to supplement what has already been captured in the <<PP_MDF>> is included in the <<BIOSD>>
-
-==== Modified SFRs
-
-The SFRs listed in this section are defined in the <<PP_MDF>> and relevant to the secure operation of the biometric enrolment and verification. It is necessary for the ST author to complete selections and/or assignments for these SFRs in a specific manner in order to ensure that the functionality provided by the mobile device is consistent with the functionality required by the biometric enrolment and verification in order for it to conform to this PP-Module.
-
-===== Class: Cryptographic Support (FCS)
-This PP-Module does not modify SFRs in FCS class as it is defined in the <<PP_MDF>>. However, note that BAF must be illustrated in the key hierarchy diagram and all keys created upon successful biometric enrolment and verification must be generated, derived, combined, released and destroyed according to SFRs in this class.
-
-===== FCS_CKM_EXT.4 Key Destruction [[FCS_CKM_EXT.4]]
-This SFR is identical to what is defined in the <<PP_MDF>>. The change is to the application note.
-
-*Application Note:* For the purposes of this requirement, plaintext keying material refers to authentication data, passwords, secret/private symmetric keys, private asymmetric keys, data used to derive keys, values derived from passwords, etc. *Biometric data used for enrolment or verification are considered critical security parameters that must be destroyed when no longer needed.*
-
-*Application Note {counter:remark_count}*:: The Application Note following FCS_CKM_EXT.4.2 is modified to add the text to include biometric data as a critical security parameter to ensure it is handled properly by the TSF.
-
-===== FPT_AEX_EXT.4 Domain Isolation [[FPT_AEX_EXT.4]]
-This SFR is identical to what is defined in the <<PP_MDF>>. The change is to the application note.
-
-*Application Note:* In addition to the TSF software (e.g., kernel image, device drivers, trusted applications) that resides in storage, the execution context (e.g., address space, processor registers, per-process environment variables) of the software operating in a privileged mode of the processor (e.g., kernel, *other processor modes*) *or on separate processors*, as well as the context of the trusted applications is to be protected. In addition to the software, any configuration information that controls or influences the behavior of the TSF *and any hardware (e.g. biometric capture sensor) that generates or accesses the biometric data* is also to be protected from modification *or unauthorized access* by untrusted subjects.
-
-*Application Note {counter:remark_count}*:: This application note explicitly adds more support for additional processor modes (e.g. the Secure/Normal World modes defined in a Trusted Execution Environment) or separate processors (e.g. a secure element) that may be present and used for the processing of biometric data. Any biometric components depicted in <<Figure 1>> should be considered as TSF being protected by these mechanisms, defined as the SEE.
-
-===== FPT_KST_EXT.1 Key Storage [[FPT_KST_EXT.1]]
-
-*FPT_KST_EXT.1.1*:: The TSF shall not store any plaintext key material *or biometric data* in readable non-volatile memory.
-
-*Application Note {counter:remark_count}*:: This SFR is functionally identical to what is defined in the <<PP_MDF>> with the addition of biometric data as key materials to be protected. Plaintext biometric data to be protected includes any data used for the biometric enrolment and verification.
-
-===== FPT_KST_EXT.2 No Key Transmission [[FPT_KST_EXT.2]]
-
-*FPT_KST_EXT.2.1*:: The TSF shall not transmit any plaintext key material *or biometric data* outside the security boundary of the TOE.
-
-*Application Note {counter:remark_count}*:: This SFR is functionally identical to what is defined in the <<PP_MDF>> with the addition of biometric data as plaintext key materials that must not be transmitted off-device. 
-
-==== Additional SFRs
-
-There are no additional SFRs that must be claimed only in cases where the <<PP_MDF>> is the claimed Base-PP.
-
-=== TOE Security Functional Requirements
-This section lists SFRs for the biometric enrolment and verification.
+* enable/disable CMFA
+* configuration update
+* optionally record when the device locks (or unlocks if supported) based on Trust Score
 
 ==== Cryptopgraphic Operations (FCS)
-* consider what base-PP SFRs may be mandatory for functionality
-* see if anything not covered in base-PP is needed
+The TOE is expected to rely on the platform for any cryptography, but at this time there are not any known functions that would require including FCS SFRs to the PP-Module.
+
+==== Protection of the TSF (FPT)
+The CMFA has its own requirements for this category, but may also rely on modifications to the Base-PP to provide support for securing the CMFA system and its data.
+
+=== TOE Security Functional Requirements
+This section lists SFRs that are proposed for inclusion in the PP-Module. Where a catalog SFR is available that has been copied here, otherwise the intent of an extended SFR is written out but has not been formally proposed (natural language vs CC requirement).
 
 ==== User Data Protection (FDP)
 
-* Access control policy/functions
-* information flow control/functions
-??
+===== FDP_ACC.2 Complete access control
+FDP_ACC.2.1:: The TSF shall enforce the [assignment: _access control SFP_] on [assignment: _list of subjects and objects_] and all operations among subjects and objects covered by the SFP.
+
+FDP_ACC.2.2:: The TSF shall ensure that all operations between any subject controlled by the TSF and any object controlled by the TSF are covered by an access control SFP.
+
+===== FDP_ACF.1 Security attribute based access control
+FDP_ACF.1.1:: The TSF shall enforce the [assignment: _access control SFP_] to objects based on the following: [assignment: _list of subjects and objects controlled under the indicated SFP, and for each, the SFP-relevant security attributes, or named groups of SFP-relevant security attributes_].
+
+FDP_ACF.1.2:: The TSF shall enforce the following rules to determine if an operation among controlled subjects and controlled objects is allowed: [assignment: _rules governing access among controlled subjects and controlled objects using controlled operations on controlled objects_].
+
+FDP_ACF.1.3:: The TSF shall explicitly authorise access of subjects to objects based on the following additional rules: [assignment: _rules, based on security attributes, that explicitly authorise access of subjects to objects_].
+
+FDP_ACF.1.4:: The TSF shall explicitly deny access of subjects to objects based on the following additional rules: [assignment: _rules, based on security attributes, that explicitly deny access of subjects to objects_].
+
+*INFO*: For the protection of data that is collected by the CMFA system the plan would be to use FDP_ACC.2. The point here is that the data that is collected by the CMFA is critical for privacy and so must be tightly controlled. This is explicitly on the data used internally by the CMFA, not on the input controls. For example location data on its own (from the location system) would not be subject to this, but once that data has come into the CMFA system, it needs to be protected by FDP_ACC.2.
+
+===== FDP_RIP.1 Subset residual information protection
+
+FDP_RIP.1.1:: The TSF shall ensure that any previous information content of a resource is made unavailable upon the [selection: _allocation of the resource to, deallocation of the resource from_] the following objects: [assignment: _list of objects_].
+
+*INFO:* It isn't clear how critical it is to have this requirement, and it is considered optional at this point. Given that the CMFA is supposed to be maintained in some sort of restricted environment, it may not be as important that data be cleared from memory during the use. Also, as the system is running continually, it also isn't as clear how important this capability will be.
+
+It is possible that this could be swapped for FDP_RIP.2, but it isn't clear that is necessary (or feasible).
 
 ==== Identification and Authentication (FIA)
 
-===== FIA_MBE_EXT.1 Biometric enrolment [[FIA_MBE_EXT.1]]
+===== FIA_CME_EXT.1 CMFA enrolment
 
-*FIA_MBE_EXT.1.1*:: The TSF shall provide a mechanism to enrol an authenticated user.
+FIA_CME_EXT.1.1:: The TSF shall provide a mechanism to enrol an authenticated user to the CMFA system. 
 
+*INFO:* To complete the enrolment of the CMFA system the user may need to enrol or acknowledge to various components of the system. For example the user may need to enrol a biometric or authorize the use of a biometric for CMFA. The user may also need to enter information like location info (or confirm it), or connect and mark accepted BT devices. The enrolment process for the user is unlikely to be a single step.
 
-===== FIA_MBE_EXT.2 Quality of biometric templates for biometric enrolment [[FIA_MBE_EXT.2]]
+===== FIA_CMV_EXT.1 CMFA verification
 
-*FIA_MBE_EXT.2.1*:: The TSF shall only use biometric samples of sufficient quality for enrolment. Sufficiency of sample data shall be determined by measuring sample with [*selection*: [[*assignment*: _quality metric standard_] using a threshold of [*assignment*: _quality metric threshold_]], [*assignment*: _developer defined quality assessment method_]].
+FIA_CMV_EXT.1.1:: The TSF shall provide a CMFA verification mechanism.
 
+===== Template Configuration
 
-===== FIA_MBV_EXT.1 Biometric verification [[FIA_MBV_EXT.1]]
+SFR:: The CMFA system can utilize the following inputs to create a template configuration: biometrics, location, etc. The input requirements/constraints shall be defined.
 
-*FIA_MBV_EXT.1.1*:: The TSF shall provide a biometric verification mechanism using [*selection*: _eye, face, fingerprint, vein_].
+*INFO:* While it is expected that any biometric used by the CMFA should have been evaluated to the Biometrics PP-Module, this is not actually a requirement. The constraint would be the level of trust allowed based on whether the biometric has been evaluated or not (only an evaluated biometric could be considered "trusted"). Another example could be the power on the radio that is needed to be used (for example a signal of at least XYZ dB).
 
-*FIA_MBV_EXT.1.2*:: The TSF shall provide a biometric verification mechanism with the [*selection*: _FMR, FAR_] not exceeding [*assignment*: _value equal to or less than 0.01% (1:10^4^)_] for the upper bound of [*assignment*: _value equal to or greater than 80%_] confidence interval and, [*selection*: _FNMR, FRR_] not exceeding [*assignment*: _value equal to or less than 5% (5:100)_] for the upper bound of [*assignment*: _value equal to or greater than 80%_] confidence interval.
+SFR:: A template configuration shall require that the calculated trust score would be comprised of at least 2/3 value from trusted input signals.
 
+*INFO:* The point here is that a template configuration will be used to generate a trust score that will be used by the system to determine the unlock status. The calculation of the trust score uses weighted values for the different inputs, and untrusted inputs should not count for more than 1/3 the total score.
 
-===== FIA_MBV_EXT.2 Quality of biometric samples for biometric verification [[FIA_MBV_EXT.2]]
+===== Template Quality
 
-*FIA_MBV_EXT.2.1*:: The TSF shall only use biometric samples of sufficient quality for verification. Sufficiency of sample data shall be determined by measuring sample with [*selection*: [[*assignment*: _quality metric standard_] using a threshold of [*assignment*: _quality metric threshold_]], [*assignment*: _developer defined quality assessment method_]].
+SFR:: The quality of the CMFA template must be sufficient to ensure the accurate identification of the authenticated user over time. The CMFA template must be composed of at least 3 signal inputs.
 
+*INFO:* The question here is whether or not there should be separate enrolment and verification requirements (as with biometrics). This is in part a question because enrolment will take time, so it is not quite a point-in-time period which would provide higher assurance about the enrolment quality.
+
+The template must be composed from at least 3 signal inputs, but more are allowed, this is just the absolute minimum allowed by the PP-Module.
+
+===== CMFA Signal Verification
+
+SFR:: The TSF shall perform user verification on a defined periodicity and report the resulting score to the authentication system.
+
+*INFO:* This requires the system to define the method for performing the periodic checks (the time period may be fixed by the vendor or set by the admin).
+
+SFR:: The TOE shall prevent the use of artificial attack signals from being used in the verification process.
+
+*INFO:* The idea here is that the attack detection is on individual input signals to the CMFA system and not to the whole of the final calculation.
+
+Attack detection may be optional, but if it could be used on select signals as opposed to all it could be mandatory. For example location may have detection, but time may not. Inputs that have their own attack detection (such as biometrics including PAD) would not need additional checks. If this is mandatory but flexible, a minimal set of signals may be specified as mandatory to have checks (if the input signal is supported by the system).
+
+===== CMFA Score
+
+SFR:: The TOE shall combine the input signals to generate a score based on the template configuration that will be reported to the authentication system.
 
 ==== Security Management
 
-* Management of functions
-* Management of Security Attributes
-* Specification of management functions?
+===== Management Functions
 
+FMT_SMF.1 & FMT_MOF.1:: This combination would specify a set of management functions and provide for them to be divided between the admin and user.
+
+The following types of management functions would be available:
+
+* Admin
+** enable/disable
+** input signals to be used
+** configuration of input signals (i.e. office location, office Wi-Fi network)
+** enrolment period
+** frequency of input checks (for example static with fixed periods or dynamic where the frequency may change based some parameters)
+** enrolment period use (can the system be used for verification before the end of enrolment or not)
+** trust settings for input signals (score weighting)
+* User
+** allow use of biometrics
+** enable/disable (if admin allows use, user can choose to not use, or stop using)
+
+*INFO:* For options like the enrolment period, this could vary with being for the entire profile or just select components (for example gait, which may take longer to accurately model)
+
+===== FMT_MSA.2 Secure security attributes
+
+FMT_MSA.2.1:: The TSF shall ensure that only secure values are accepted for [assignment: _minimum secure configuration requirements_].
+
+*INFO:* The point for this would be to specify the minimum input signal requirements necessary to configure CMFA. This is tied with CMFA template quality proposed SFR.
+
+===== FMT_MSA.4 Security attribute value inheritance
+
+FMT_MSA.4.1:: The TSF shall use the following rules to set the value of security attributes: [assignment: _rules for setting the values of security attributes_].
+
+*INFO:* Something like this SFR would be used to specify the trust settings for the inputs for CMFA. Likely this would need to be extended (given the dependencies here not making sense), but this would be the general ideal to set this information.
 
 ==== Privacy
 
-* not sure here, but likely something (may need to be EXT)
+SFR:: The CMFA template shall not be exported.
+
+*INFO:* There isn't an exact requirement for this, and it could be done not with a privacy requirement. There are some MDF requirements that may be able to be used for this, but the purpose of this statement is that the template, which will hold a lot of personal data, shall not be able to be exported from the device to ensure this data is protected.
 
 ==== Protection of the TSF (FPT)
 
-* replay?
-* time stamps (device dependency)
-* self test?
-* fail secure (is this applicable, it may be useful to show failure would go to say password or something)
+===== FPT_CDP_EXT.1 CMFA data processing
 
+FPT_CDP_EXT.1.1:: Processing of plaintext CMFA data shall be inside the SEE in runtime.
 
-===== FPT_BDP_EXT.1 Biometric data processing [[FPT_BDP_EXT.1]]
+*INFO:* The expectation here is that the SEE also provides protection for data at rest to ensure that any information that is stored cannot be accessed in that state.
 
-*FPT_BDP_EXT.1.1*:: Processing of plaintext biometric data shall be inside the SEE in runtime.
+===== FPT_PCT_EXT.1 Protection of CMFA template
 
+FPT_PCT_EXT.1.1:: The TSF shall protect the CMFA template [*selection*: _using a PIN as an additional factor, using a password as an additional factor_, [*assignment*: _other circumstances_]].
 
-*FPT_BDP_EXT.1.2*:: Transmission of plaintext biometric data between the capture sensor and the SEE shall be isolated from the main computer operating system on the TSF in runtime.
+===== FPT_FLS.1 Failure with preservation of secure state
 
+FPT_FLS.1.1:: The TSF shall preserve a secure state when the following types of failures occur: [_when the CMFA system detects invalid inputs_].
 
-===== FPT_PBT_EXT.1 Protection of biometric template [[FPT_PBT_EXT.1]]
-
-*FPT_PBT_EXT.1.1*:: The TSF shall protect the template [*selection*: _using a PIN as an additional factor, using a password as an additional factor_, [*assignment*: _other circumstances_]].
+*INFO:* The purpose of this requirement is that if invalid inputs (or other possible conditions that may be critical, such as the system crashing), would fail over to the normal authentication mechanism. Basically the point would be that in the case of a "critical" failure, the score would go to 0.
 
 ==== Trusted Path/Channels
 
-* is this useful to show some paths to the CMFA engine? Trust?
+===== FTP_TRP.1 Trusted path
 
+FTP_TRP.1.1:: The TSF shall provide a communication path between itself and [_local_] users that is logically distinct from other communication paths and provides assured identification of its end points and protection of the communicated data from [_modification_].
 
-== Optional Requirements
-This section comprises requirements that can be included in the ST, but are not mandatory for a TOE to claim conformance to this PP-Module.
+FTP_TRP.1.2:: The TSF shall permit [_the TSF_] to initiate communication via the trusted path.
 
-ST authors are free to choose none, some or all SFRs defined in this Section. Just the fact that a product supports a certain functionality does not mandate to add any SFR defined in this chapter.
+FTP_TRP.1.3:: The TSF shall require the use of the trusted path for [[_list of input signal sources to the TOE_]].
 
-=== Identification and Authentication (FIA)
-
-==== FIA_MBE_EXT.3 Presentation attack detection for biometric enrolment [[FIA_MBE_EXT.3]]
-
-*FIA_MBE_EXT.3.1*:: The TSF shall prevent use of artificial presentation attack instruments from being successfully enroled.
-
-==== FIA_MBV_EXT.3 Presentation attack detection for biometric verification [[FIA_MBV_EXT.3]]
-
-*FIA_MBV_EXT.3.1*:: The TSF shall provide a biometric verification mechanism with the IAPAR not exceeding [*assignment*: _value equal to or less than 15% (15:100)_] to prevent use of artificial presentation attack instruments from being successfully verified.
+*INFO:* Trusted path here is to ensure a secure channel between the input signal and the CMFA system. Disclosure of the data is not really a concern here, though this could be useful from a privacy standpoint (again because the data collected for CMFA is really personal). The source of the signal over the path can also be used as a determination of trust of the input. Since some signals may come over what may be untrusted channels, this is likely an input into determining the trust level that can be assigned to the input.
